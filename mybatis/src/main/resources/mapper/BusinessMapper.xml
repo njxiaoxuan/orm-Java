@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 以下namespace名字可以随便写，但是一般都写成实体类的名字-->
+<mapper namespace="com.jason.dao.BusinessDao">
+    <!-- resultMap标签:映射实体与表
+         type属性：表示实体全路径名
+         id属性：为实体与表的映射取一个任意的唯一的名字
+    -->
+    <resultMap  id="businessMap" type="business">
+        <!-- id标签:映射主键属性
+             result标签：映射非主键属性
+             property属性:实体的属性名
+             column属性：表的字段名
+        -->
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="addTime" column="addtime"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+    <!-- 根据文章查询作者，一对一查询的结果，嵌套查询 -->
+    <resultMap id="selectBusinessWithSellInfo" type="com.jason.bean.associate.BusinessAndSellInfo">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result property="addTime" column="addtime" jdbcType="TIMESTAMP"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <!-- 联合查询，将author的属性映射到ResultMap -->
+        <association property="sellinfo" javaType="com.jason.bean.SellInfo">
+            <id column="businessid" property="businessid"/>
+            <result column="sellinfo" property="sellinfo"/>
+        </association>
+    </resultMap>
+    <select id="selectBusinessWithSellInfo" resultType="businessAndSellInfo">
+           SELECT a.id,a.name,a.addtime,a.remark,b.sellinfo,b.sellinfo,b.id FROM business a,sellinfo b
+           where a.id=b.businessid
+    </select>
+    <insert id="addBusiness" parameterType="business" useGeneratedKeys="true" keyProperty="id" flushCache="true">
+           insert into business(id,name,addtime,remark) values(
+           #{id},#{name},#{addTime},#{remark}
+           )
+    </insert>
+    <update id="update" parameterType="business" flushCache="true">
+              update business set name=#{name}  where id=#{id}
+    </update>
+    <!--查询默认  useCache为true-->
+    <select id="selectBusinessById"   parameterType="business" resultType="business" flushCache="true"  useCache="false">
+           select * from business   where  id=#{id}
+           <if test="name!=null"> and name=#{name}</if>
+    </select>
+
+</mapper>
