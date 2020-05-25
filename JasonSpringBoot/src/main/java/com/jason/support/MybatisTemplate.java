@@ -14,7 +14,7 @@ import java.io.Reader;
  **/
 public class MybatisTemplate {
     private static Object lock=new Object();
-    private static SqlSessionFactory sqlMapper=null;
+    private static SqlSessionFactory sf=null;
     private static ThreadLocal<SqlSession>  local=new ThreadLocal<SqlSession>();
     static{
         Reader reader=null;
@@ -26,7 +26,7 @@ public class MybatisTemplate {
             e.printStackTrace();
         }
         //初始化mybatis,创建SqlSessionFactory类的实例
-        sqlMapper=new SqlSessionFactoryBuilder().build(reader);
+        sf=new SqlSessionFactoryBuilder().build(reader);
     }
 
     public static  SqlSession  getSession()
@@ -39,7 +39,7 @@ public class MybatisTemplate {
             {
                 if (local.get()==null)
                 {
-                    local.set(sqlMapper.openSession());
+                    local.set(sf.openSession());
                 }
             }
             return local.get();
